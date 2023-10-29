@@ -25,7 +25,7 @@ import asmInstructions as asm
 #             string += "m{0}={1}".format(convert.toHex(j+(i*h),2),convert.toHex(int.from_bytes(mem[j+(i*h)], "big"),2))
 #         print(string)
 
-def instName(inst, instL = None):
+def instNameOld(inst, instL = None):
     if instL != None:
         inst = inst*0x100 + instL
     if isinstance(inst, bytes):
@@ -106,7 +106,7 @@ class CPU:
         if self.pgmi < 0xff and self.en < self.mxEn:
             cInst = int.from_bytes(b''.join([self.memory[self.pgmi],self.memory[self.pgmi+1]]), byteorder="big")
             self.pgmi += 2
-            if self.pr: print("{0}| 0x{1} {2}".format(convert.toHex(self.pgmi,2),convert.toHex(cInst,4),instName(cInst)))
+            if self.pr: print("{0}| 0x{1} {2}".format(convert.toHex(self.pgmi,2),convert.toHex(cInst,4),asm.strInstr(cInst)))
             rt = self._processInst(cInst)
         elif self.en >= self.mxEn:
             if self.pr: print("Max execute reached, terminating")

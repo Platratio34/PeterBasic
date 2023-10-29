@@ -1,6 +1,5 @@
 import re
 from convert import toHex
-from simpleMachine import instName
 
 from BasicCompileError import *
 from basicFunctions import basicFunctions

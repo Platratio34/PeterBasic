@@ -81,7 +81,7 @@ cInstFrame.pack(side=tk.LEFT)
 cInst = int.from_bytes(b''.join([cpu.memory[cpu.pgmi],cpu.memory[cpu.pgmi+1]]), byteorder="big")
 cInstLabel = tk.Label(cInstFrame, text=f'0x{convert.toHex(cInst,4)}', font=memFont)
 cInstLabel.pack(side=tk.LEFT)
-cInstDLabel = tk.Label(cpuFrame, text=strInstr(cInst), font=memFont)
+cInstDLabel = tk.Label(cpuFrame, text=strInstr(cInst), font=memFont, width=40)
 cInstDLabel.pack()
 
 stackFrame = tk.LabelFrame(instFrame, text="Stack")
