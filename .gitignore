@@ -1,3 +1,12 @@
 __pycache__/
 *.pyc
 *.pyo
+__pycache__/asmCompile.cpython-312.pyc
+__pycache__/asmInstructions.cpython-312.pyc
+__pycache__/basicClasses.cpython-312.pyc
+__pycache__/basicCompile.cpython-312.pyc
+__pycache__/BasicCompileError.cpython-312.pyc
+__pycache__/basicFunctions.cpython-312.pyc
+__pycache__/convert.cpython-312.pyc
+__pycache__/peripherals.cpython-312.pyc
+__pycache__/simpleMachine.cpython-312.pyc
