@@ -226,7 +226,6 @@ class GotoChunk(Chunk):
         pgm._addGoto(self.dest)
 
 class GotoFuncChunk(GotoChunk):
-    
     def __str__(self):
         return f'GotoFuncChunk "{self.dest}"'
     
@@ -234,6 +233,11 @@ class GotoFuncChunk(GotoChunk):
         pgm._addB(asm.load(0x0, len(pgm.machine)+6))
         pgm._addB(asm.moveToSpec(0x0, asm.R_STACK))
         pgm._addGoto(self.dest)
+class ExitFuncChunk(Chunk):
+    def __str__(self):
+        return f'ExitFuncChunk'
+    def compile(self, pgm: BasicProgram):
+        pgm._addB(asm.stackToPgmi())
 
 class AsmChunk(Chunk):
     def __init__(self, by: tuple[bytes, bytes]):
@@ -364,7 +368,8 @@ class Function(CodeBlock):
         super().addEnd()
     
     def addExit(self):
-        self.pgm.addChunk(asm.stackToPgm())
+        # self.pgm.addChunk(asm.stackToPgmi())
+        self.pgm.addChunk(ExitFuncChunk())
 
     def addChunk(self, chunk: Chunk):
         self.chunks.append(chunk)

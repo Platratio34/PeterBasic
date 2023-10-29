@@ -7,37 +7,38 @@ from convert import toHex
 NO_OP =     0x0 # NO_OP x x x
 """ No operation. NO_OP x x x """
 LOAD_MEM =  0x1 # LOAD_MEM destReg memAdr
-"""  """
+""" Load memory to register. LOAD_MEM destReg memAdr """
 LOAD =      0x2 # LOAD destReg value
-"""  """
+""" Load value to register. LOAD destReg value """
 STORE =     0x3 # STORE srcReg memAdr
-"""  """
+""" Store register to memory. STORE srcReg memAdr """
 MOVE =      0x4 # MOVE spec srcReg destReg
-"""  """
+""" Move value between registers. MOVE spec srcReg destReg """
 ADD_S =     0x5 # ADD_S destReg reg1 reg2
-"""  """
+""" Add 2 registers into destination register. ADD_S destReg reg1 reg2 """
 ADD_F =     0x6 # ADD_F destReg reg1 reg2
-"""  """
+""" UNIMPLEMENTED. ADD_F destReg reg1 reg2 """
 OR =        0x7 # OR destReg reg1 reg2
-"""  """
+""" Binary or 2 registers into destination register. OR destReg reg1 reg2 """
 AND =       0x8 # AND destReg reg1 reg2
-"""  """
+""" Binary and 2 registers into destination register. AND destReg reg1 reg2 """
 XOR =       0x9 # XOR destReg reg1 reg2
-"""  """
+""" Binary xor 2 registers into destination register. XOR destReg reg1 reg2 """
 ROTATE =    0xA # ROTATE reg x places
-"""  """
+""" Rotate the value in register by given amount. ROTATE reg x places """
 JUMP =      0xB # JUMP reg instruction
-"""  """
+""" Jump to instruction if register is equal to r0. JUMP reg instruction """
 HALT =      0xC # HALT x x x
-"""  """
+""" Stop execution. HALT x x x """
 STORE_P =   0xD # STORE_P srcReg perAdr
-"""  """
+""" Store register to peripheral address. STORE_P srcReg perAdr """
 LOAD_P =    0xE # LOAD_P destReg PerAdr
-"""  """
+""" Load register from peripheral address. LOAD_P destReg PerAdr """
 JUMP_L =    0xF # JUMP_L reg instruction
-"""  """
+""" Jump to instruction if register is less than r0. JUMP_L reg instruction """
 
 def toName(instr: int|bytes):
+    """ Turn an instruction op-code into ASM name"""
     if isinstance(instr, bytes):
         instr = int.from_bytes(instr, 'big')
     if instr == NO_OP:
@@ -76,6 +77,7 @@ def toName(instr: int|bytes):
         return 'UNKNOWN'
 
 def strInstr(instr: int|tuple[bytes, bytes]):
+    """ Turn an machine code instruction to ASM-Like string"""
     if isinstance(instr, tuple):
         bh, bl = instr
         instr = int.from_bytes(bh, "big") * 0x100
@@ -185,6 +187,7 @@ R_EXIT = 0x2
 """ Exit code register """
 
 def specRegToName(reg: int):
+    """ Special register index to name """
     if reg == R_PGMI:
         return 'R_PGMI'
     elif reg == R_STACK:
@@ -204,9 +207,11 @@ def moveFromToSpec(src: int, dest: int):
     """ Move value from special register to special register """
     return toByte(MOVE, 0x3, src, dest)
 
-def pgmToStack():
+def pgmiToStack():
+    """ Move program index to stack """
     return moveFromToSpec(R_PGMI, R_STACK)
-def stackToPgm():
+def stackToPgmi():
+    """ Pop stack to program index """
     return moveFromToSpec(R_STACK, R_PGMI)
 
 def goto(instr: int):
