@@ -1,14 +1,14 @@
 var l = 0
 
-var _tri_i = 0
-var _tri_j = 0
 function tri()
-    while _tri_i < l
-        while _tri_j <= _tri_i
+    var i = 0
+    var j = 0
+    while i < l
+        while j <= i
             write("*")
-            _tri_j += 1
+            j += 1
         end
-        _tri_i += 1
+        i += 1
     end
 end
 

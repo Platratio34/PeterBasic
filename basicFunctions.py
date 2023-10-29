@@ -43,7 +43,7 @@ def parseParams(paramStr: str, funcName: str, numParams: int):
 consoleAdr = 0x00
 def write(pgm: BasicProgram, params: str):
     param = parseParams(params, 'write', 1)[0]
-    
+    var = pgm.getVar(param)
     if param[0] == '"': # Write from string literal
         if param[-1] != '"':
             raise BasicCompileError(f'Unterminated string literal: {param}')
@@ -81,8 +81,7 @@ def write(pgm: BasicProgram, params: str):
             pgm.addChunk(asm.load( r, ord(c)))
             pgm.addChunk(asm.storePer(r, consoleAdr))
             i += 1
-    elif param in pgm.variables: # Write from variable
-        var = pgm.variables[param]
+    elif var: # Write from variable
         if var.inReg():
             # pgm.addB(asm.storePer(var.rAdr, consoleAdr))
             pgm.addChunk(asm.storePer(var.rAdr, consoleAdr))
@@ -123,10 +122,11 @@ basicFunctions['write'] = write
 def rotate(pgm: BasicProgram, paramStr: str):
     params = parseParams(paramStr, 'rotate', 2)
     
-    if not (params[0] in pgm.variables):
+    var = pgm.getVar(params[0])
+    if not var:
         raise BasicValueError('First parameter of rotate() must be variable')
     
-    var = pgm.variables[params[0]]
+    # var = pgm.variables[params[0]]
     
     ra = 0
     if params[1][0:2] == '0x':

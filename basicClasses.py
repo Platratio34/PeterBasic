@@ -17,12 +17,13 @@ class Variable:
         self.rAdr = rAdr
         self.clearable = False
         self.modified = False
+        self.scope = 'global'
         if rAdr > -1:
             self.storeToMem()
     
     def __str__(self):
         if self.name == '__tmp': return 'Variable {' + f'temp , rAdr={self.rAdr}, clearable={self.clearable}, modified={self.modified}' + '}'
-        return 'Variable {' + f'name="{self.name}", mAdr={toHex(self.mAdr)}, rAdr={self.rAdr}, clearable={self.clearable}, modified={self.modified}' + '}'
+        return 'Variable {' + f'name="{self.name}", scope={self.scope}, mAdr={toHex(self.mAdr)}, rAdr={self.rAdr}, clearable={self.clearable}, modified={self.modified}' + '}'
     
     def loadToReg(self, reg:int, mark=True):
         if self.rAdr == reg: # already loaded here
@@ -139,6 +140,10 @@ class JumpChunk(Chunk):
             self.dest = dest.name
     
     def __str__(self):
+        if self.jump == asm.JUMP:
+            return f'JumpChunk r[{toHex(self.reg,1)}] == r0 --> "{self.dest}"'
+        elif self.jump == asm.JUMP_L:
+            return f'JumpChunk r[{toHex(self.reg,1)}] < r0 --> "{self.dest}"'
         return f'JumpChunk {asm.toName(self.jump)} r[{toHex(self.reg,1)}] "{self.dest}"'
     
     def compile(self, pgm: BasicProgram):
@@ -341,10 +346,13 @@ class Function(CodeBlock):
     
     def __init__(self, pgm: BasicProgram, name:str, lineN: int):
         super().__init__(pgm, 'func_'+name, lineN)
+        self.chunks: list[Chunk] = []
+        self.variables: dict[str, Variable] = {}
+        self.regUsed: dict[str, Variable] = {}
     
-    def addMain(self):
-        super().gotoEnd()
-        super().addMain()
+    # def addMain(self):
+    #     super().gotoEnd()
+    #     super().addMain()
     
     def gotoMain(self):
         # self.pgm.addChunk(asm.pgmToStack())
@@ -352,5 +360,15 @@ class Function(CodeBlock):
         # super().gotoMain()
     
     def addEnd(self):
-        self.pgm.addChunk(asm.stackToPgm())
+        self.addExit()
         super().addEnd()
+    
+    def addExit(self):
+        self.pgm.addChunk(asm.stackToPgm())
+
+    def addChunk(self, chunk: Chunk):
+        self.chunks.append(chunk)
+    def compileChunks(self):
+        for chunk in self.chunks:
+            self.pgm.print(toHex(len(self.pgm.machine)), chunk)
+            chunk.compile(self.pgm)

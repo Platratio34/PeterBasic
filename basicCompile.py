@@ -31,6 +31,7 @@ class BasicProgram:
         self.nextMem = 0xff
         self.codeBlockN = 0
         self.codeBlocks: list[CodeBlock] = []
+        self.cFunc: Function|None = None
         self.functions: dict[str, Function] = {}
         self.__nextJump = 0
     
@@ -52,12 +53,32 @@ class BasicProgram:
         return m
     
     def addVar(self, name:str, mAdr:int, rAdr=-1):
-        if name in self.variables:
-            raise BasicCompileError(f'Variable with name {name} already exists')
+        if self.cFunc:
+            if name in self.cFunc.variables:
+                raise BasicCompileError(f'Variable with name {name} already exists in function scope')
+        else:
+            if name in self.variables:
+                raise BasicCompileError(f'Variable with name {name} already exists in global scope')
+        
         var = Variable(self, name, mAdr, rAdr)
-        self.variables[name] = var
+        if self.cFunc:
+            self.cFunc.variables[name] = var
+            var.scope = self.cFunc.name
+        else:
+            self.variables[name] = var
+            var.scope = 'global'
         # var.storeToMem()
         return var
+    def isVar(self, name:str):
+        if self.cFunc:
+            if name in self.cFunc.variables: return True
+        return name in self.functions
+    def getVar(self, name: str):
+        if self.cFunc:
+            if name in self.cFunc.variables: return self.cFunc.variables[name]
+        if name in self.variables:
+            return self.variables[name]
+        return None
     
     def _add(self, instruction:int, reg=0x0, op1=0x0, op2: int|None=None):
         if op2 != None:
@@ -74,10 +95,13 @@ class BasicProgram:
         return len(self.machine)
     
     def addChunk(self, chunk: Chunk|tuple[bytes, bytes]):
-        if isinstance(chunk, Chunk):
-            self.chunks.append(chunk)
+        if isinstance(chunk, tuple):
+            # self.chunks.append(chunk)
+            chunk = AsmChunk(chunk)
+        if self.cFunc:
+            self.cFunc.addChunk(chunk)
         else:
-            self.chunks.append(AsmChunk(chunk))
+            self.chunks.append(chunk)
     
     def nextReg(self, start=0x1):
         for i in range(start, 0x10):
@@ -99,6 +123,7 @@ class BasicProgram:
             for line in f:
                 lines.append(line.rstrip('\n'))
         
+        self.print('Parsing lines')
         for lineN in range(len(lines)):
             line = lines[lineN]
         
@@ -128,13 +153,17 @@ class BasicProgram:
         # print(self.machine)
         # print(self.jumpPoints)
         # print(self.regUsed)
-        for r, var in self.regUsed.items():
-            self.print(r, var)
-        for _, var in self.variables.items():
-            self.print(var)
+        # for r, var in self.regUsed.items():
+        #     self.print(r, var)
+        # for _, var in self.variables.items():
+        #     self.print(var)
+        self.print('Compiling Chunks')
         for chunk in self.chunks:
             self.print(toHex(len(self.machine)), chunk)
             chunk.compile(self)
+        for name, func in self.functions.items():
+            self.print(f'Func: {name}()')
+            func.compileChunks()
         
         try:
             self.resolveJumps()
@@ -188,22 +217,27 @@ class BasicProgram:
             if len(self.codeBlocks) <= 0:
                 raise BasicCompileError('Else statement found outside of if')
             
-            ifStatement = self.codeBlocks[-1]
-            if not isinstance(ifStatement, IfStatement):
+            block = self.codeBlocks[-1]
+            if not isinstance(block, IfStatement):
                 raise BasicCompileError('Else statement can only be used with if')
-            ifStatement.gotoEnd()
-            ifStatement.addElse()
+            block.gotoEnd()
+            block.addElse()
             return
         elif line == 'end': # End for code block
             if len(self.codeBlocks) <= 0:
-                raise BasicCompileError('End statement found outside of if or loop')
-            ifStatement = self.codeBlocks.pop()
-            if isinstance(ifStatement, Loop):
-                ifStatement.gotoCheck()
-            # TODO check and return for function code block
-            ifStatement.addEnd()
+                raise BasicCompileError('End statement found outside of if, loop or function')
+            block = self.codeBlocks.pop()
+            if isinstance(block, Loop):
+                block.gotoCheck()
+            block.addEnd()
+            if isinstance(block, Function):
+                self.cFunc = None
             return
-
+        elif line == 'return':
+            if not self.cFunc:
+                raise BasicCompileError('Return statement found outside of function')
+            self.cFunc.addExit()
+            return
 
         if re.search(r'^goto\s+', line): # Goto
             mtc = split(r'^goto\s+', line)[1]
@@ -310,6 +344,7 @@ class BasicProgram:
             return
         
         if re.search(r'^function\s+', line): # Custom function
+            if self.cFunc: raise BasicCompileError('Functions can not be defined inside functions')
             self._parseFunction(lineN, line)
             return
         
@@ -346,9 +381,9 @@ class BasicProgram:
         self._addJump(asm.JUMP, 0, name, lineN)
     
     def parseParam(self, param: str, reg = -1):
-        var = None
-        if(param in self.variables):
-            var = self.variables[param]
+        var = self.getVar(param)
+        if(var):
+            # var = self.variables[param]
             # reg = var.getOrLoad()
             if not var.inReg():
                 if reg == -1:
@@ -635,11 +670,10 @@ class BasicProgram:
         mth = asg != '=' or op # if this is math
         
         dr = -1
-        dv = None
+        dv = self.getVar(dest)
         dm = -1
         dp = -1
-        if dest in self.variables:
-            dv = self.variables[dest]
+        if dv:
             # if mth:
             if not dv.inReg():
                 dr = self.nextReg()
@@ -669,9 +703,8 @@ class BasicProgram:
             raise BasicValueError(f'Unknown destination for assignment: "{dest}"')
         
         sr = -1
-        sv = None
-        if src1 in self.variables:
-            sv = self.variables[src1]
+        sv = self.getVar(src1)
+        if sv:
             if not sv.inReg():
                 if not mth and dv:
                     # self.add(asm.LOAD_MEM, dv.rAdr, sv.mAdr)
@@ -769,8 +802,8 @@ class BasicProgram:
                 sv = dv
                 # raise BasicCompileError(f'Self assignment statements are not available yet')
             else:
-                if src2 in self.variables:
-                    sv2 = self.variables[src1]
+                sv2 = self.getVar(src2)
+                if sv2:
                     if not sv2.inReg():
                         sr2 = self.nextReg()
                         if sr2 == -1:
@@ -952,7 +985,7 @@ class BasicProgram:
         self.functions[name] = func
         self.codeBlocks.append(func)
         func.addMain()
-        
+        self.cFunc = func
     
     def resolveJumps(self):
         for jump in self.jumps:
