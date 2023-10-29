@@ -1,0 +1,10 @@
+var a = "a"
+
+write(a)
+toStack(a)
+a = "b"
+write(a)
+fromStack(a)
+write(a)
+
+exit 0

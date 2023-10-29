@@ -1,0 +1,32 @@
+alias r1 n1
+alias r2 n2
+
+n1 = 0x00 // test
+n2 = 0x00 // test
+
+if n1 != n2: neg
+p00 = 0x45 -- E
+p00 = 0x51 -- Q
+goto end1
+
+:neg ## if n1 was not equal to n2
+p00 = 0x4E -- N
+p00 = 0x45 -- E
+
+:end1
+p00 = 0x0A -- \n
+n2 = 0x10
+
+if n1 < n2: less
+p00 = 0x47 -- G
+p00 = 0x45 -- T
+goto end2
+
+:less ## if n1 was less than n2
+p00 = 0x4C -- L
+p00 = 0x53 -- S
+
+:end2
+p00 = 0x0A -- \n
+
+HALT

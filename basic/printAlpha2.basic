@@ -1,0 +1,17 @@
+var char = "A"
+var inc = 1
+
+while char <= "Z"
+    write(char)
+    char += inc
+end
+
+write("\n")
+char = "a"
+
+while char <= "z"
+    write(char)
+    char += inc
+end
+
+exit 0

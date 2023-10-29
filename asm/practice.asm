@@ -1,0 +1,9 @@
+LOAD 0 00
+LOAD 1 03
+LOAD 2 01
+:loop
+JUMP 1 end
+ADD_S 0 0 2
+JUMP 0 loop
+:end
+HALT

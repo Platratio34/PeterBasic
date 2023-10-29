@@ -1,0 +1,20 @@
+LOAD 0 40
+LOAD 1 5A
+LOAD 2 01
+:loop1
+ADD_S 0 0 2
+STORE_P 0 00
+JUMP 1 end1
+JUMP 0 loop1
+:end1
+LOAD 0 0A
+STORE_P 0 00
+LOAD 0 60
+LOAD 1 7A
+:loop2
+ADD_S 0 0 2
+STORE_P 0 00
+JUMP 1 end2
+JUMP 0 loop2
+:end2
+HALT

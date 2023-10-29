@@ -1,0 +1,10 @@
+LOAD 0 FF
+LOAD 1 01
+LOAD 2 01
+:loop
+ADD_S 1 1 2
+STORE 1 70
+JUMP 1 end
+JUMP 0 loop
+:end
+HALT

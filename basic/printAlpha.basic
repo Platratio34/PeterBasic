@@ -1,0 +1,22 @@
+alias r1 char
+
+char = 0x40
+
+:loop1
+char = char + 0x01
+p00 = char
+if char == 0x5A: end1
+goto loop1
+:end1
+
+p00 = 0x0A
+char = 0x60
+
+:loop2
+char = char + 0x01
+p00 = char
+if char == 0x7A: end2
+goto loop2
+:end2
+
+HALT

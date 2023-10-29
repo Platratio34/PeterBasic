@@ -1,0 +1,21 @@
+var a = 0x00
+var b = 0x00
+
+if a != b ## if a was not equal to b
+    write("a!=b")
+else
+    write("a==b")
+end
+
+write("\n")
+b = 0x10
+
+if a < b ## if a was less than b
+    write("a<b")
+else
+    write("a>=b")
+
+
+write("\n")
+
+HALT

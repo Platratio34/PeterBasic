@@ -1,0 +1,16 @@
+LOAD 0 01
+LOAD 1 FF
+LOAD 2 01
+LOAD 3 02
+LOAD 4 02
+:loop
+ADD_S 0 0 2
+JUMP 1 end
+JUMP 3 store
+JUMP 0 loop
+:store
+STORE_P 0 00
+ADD_S 3 3 4
+JUMP 0 loop
+:end
+HALT

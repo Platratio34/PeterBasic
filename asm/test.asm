@@ -1,0 +1,9 @@
+LOAD 0 FF
+LOAD 1 01
+LOAD 2 01
+:add
+ADD_S 1 1 2
+JUMP 1 end
+JUMP 0 add
+:end
+HALT

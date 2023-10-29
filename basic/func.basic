@@ -1,0 +1,25 @@
+var a = 0
+var b = 0
+var c = 1
+
+function test()
+    -- write("Test\n")
+    write("*")
+    a += 1
+    b += 1
+    if b < c
+        test()
+    else
+        c += 1
+    end
+end
+
+var i = 0
+while i < 5
+    b = 0
+    test()
+    write("\n")
+    i += 1
+end
+
+exit 0
