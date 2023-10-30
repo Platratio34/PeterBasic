@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING
 from abc import ABC, abstractmethod
 
 import tkinter as tk
+import scrollableFrame as sF
 
 if TYPE_CHECKING:
     from simpleMachine import CPU
@@ -30,7 +31,7 @@ class PerConsole(Peripheral):
         self.text = ''
     
     def setGUI(self, frame: tk.Misc):
-        self.frame = frame
+        self.frame = sF.VerticalScrolledFrame(frame, width=50, height=10)
         self.textLabel = tk.Label(frame, text='', font=("Consolas", 10), width=50, height=10, anchor=tk.NW, justify=tk.LEFT)
         self.textLabel.pack()
     
