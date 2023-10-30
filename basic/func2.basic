@@ -2,17 +2,29 @@ var l = 0
 
 function tri()
     var i = 0
-    var j = 0
+    write("|\\\n")
     while i < l
+        var j = 0
+        write("|")
         while j <= i
             write("*")
             j += 1
         end
+        write("\\\n")
         i += 1
     end
+    i = 0
+    write("+")
+    while i < l
+        write("-")
+        i += 1
+    end
+    write("+\n")
 end
 
 l = 5
+tri()
+l = 3
 tri()
 
 exit 0

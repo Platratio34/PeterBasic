@@ -911,7 +911,10 @@ class BasicProgram:
         if r0 != 0: r1 = 0
         r1, v1 = self.parseParam(p1, r1)
 
-        
+        if r0 != 0 and r1 != 0:
+            self.addChunk(asm.move(r0, 0x0))
+            if v0:
+                v0.markReg(0, False)
     
         r = r1
         if(r1 == 0):
@@ -984,8 +987,9 @@ class BasicProgram:
         func = Function(self, name, lineN)
         self.functions[name] = func
         self.codeBlocks.append(func)
-        func.addMain()
         self.cFunc = func
+        
+        func.addMain()
     
     def resolveJumps(self):
         for jump in self.jumps:
