@@ -1,9 +1,9 @@
-LOAD 0 FF
-LOAD 1 01
-LOAD 2 01
+LOAD r0 0xFF
+LOAD r1 0x01
+LOAD r2 0x01
 :add
-ADD_S 1 1 2
-JUMP 1 end
-JUMP 0 add
+ADD_S r1 r1 r2
+JUMP r1 end
+JUMP r0 add
 :end
 HALT

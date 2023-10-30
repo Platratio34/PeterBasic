@@ -329,7 +329,11 @@ def loadFile():
         cpu.loadMemFromBinFile(file)
     elif fileType == 'asm':
         print('Loading as assembly')
-        cpu.loadMemFromInstr(asm.compile(file))
+        machine, error = asm.asmCompile(file)
+        if not machine:
+            print(f'Asm compile error: {error}')
+            return
+        cpu.loadMemFromBytes(machine)
     elif fileType == 'basic':
         print('Loading as basic')
         program = BasicProgram()

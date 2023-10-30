@@ -145,9 +145,9 @@ def load(reg: int, val: int):
 def store(reg: int, mem: int):
     """ Store register to memory. r[reg] -> m[mem] """
     return toByte(STORE, reg, mem, None)
-def move(src: int, dest: int):
+def move(src: int, dest: int, opt: int=0x0):
     """ Move value from register to register. r[src] -> r[dest] """
-    return toByte(MOVE, 0x0, src, dest)
+    return toByte(MOVE, opt, src, dest)
 def addS(reg: int, op1: int, op2: int):
     """ Add (signed) values into register. r[op1] + r[op2] -> r[reg] """
     return toByte(ADD_S, reg, op1, op2)
